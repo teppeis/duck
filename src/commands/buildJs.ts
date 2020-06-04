@@ -1,5 +1,4 @@
 import { promises as fs } from "fs";
-import pLimit from "p-limit";
 import pSettled from "p-settle";
 import path from "path";
 import recursive from "recursive-readdir";
@@ -39,11 +38,10 @@ export async function buildJs(
   const entryConfigPaths = entryConfigs
     ? entryConfigs
     : (await findEntryConfigs(assertString(config.entryConfigDir))).sort();
-  const limit = pLimit(config.concurrency || 1);
   let runningJobCount = 1;
   let completedJobCount = 1;
-  const promises = entryConfigPaths.map((entryConfigPath) =>
-    limit(async () => {
+  const compileFunctions = entryConfigPaths.map(
+    (entryConfigPath) => async () => {
       try {
         const entryConfig = await loadEntryConfig(entryConfigPath);
         let options: compilerCoreFunctions.ExtendedCompilerOptions;
@@ -85,12 +83,12 @@ export async function buildJs(
         logWithCount(entryConfigPath, completedJobCount++, "Failed");
         throw e;
       }
-    })
+    }
   );
 
   try {
     return await waitAllAndThrowIfAnyCompilationsFailed(
-      promises,
+      compileFunctions,
       entryConfigPaths,
       config
     );
@@ -120,11 +118,15 @@ export async function buildJs(
  * @throws BuildJsCompilationError
  */
 async function waitAllAndThrowIfAnyCompilationsFailed(
-  promises: ReadonlyArray<Promise<CompileErrorItem[] | undefined>>,
+  compileFunctions: ReadonlyArray<
+    () => Promise<CompileErrorItem[] | undefined>
+  >,
   entryConfigPaths: readonly string[],
   config: DuckConfig
 ): Promise<ErrorReason[]> {
-  const results = await pSettled(promises);
+  const results = await pSettled(compileFunctions, {
+    concurrency: config.concurrency || 1,
+  });
   const reasons: ErrorReason[] = results
     .map((result, idx) => ({
       ...result,
