@@ -49,7 +49,7 @@
     "p-limit": "^3.0.2",
     "p-settle": "^4.1.1",
     "pino": "^6.7.0",
-    "pino-pretty": "^4.3.0",
+    "pino-pretty": "^4.8.0",
     "recursive-readdir": "^2.2.2",
     "rxjs": "^6.6.7",
     "semver": "^7.3.5",
