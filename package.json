@@ -59,7 +59,7 @@
     "tempy": "^1.0.1",
     "workerpool": "^6.1.4",
     "xmlbuilder": "^15.1.1",
-    "yargs": "^16.2.0",
+    "yargs": "^13.0.0",
     "zet": "^1.1.0"
   },
   "peerDependencies": {
