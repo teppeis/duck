@@ -63,6 +63,18 @@ logStream.on("data", (data: any) => {
   }
 });
 
+function assertStringWithConfig(config: DuckConfig, key: keyof DuckConfig) {
+  const value = config[key];
+  return assertString(value, `'${key}' is not string(${value}).`);
+}
+function assertNonNullableWithConfig(
+  config: DuckConfig,
+  key: keyof DuckConfig
+) {
+  const value = config[key];
+  return assertNonNullable(value, `'${key}' is ${value}.`);
+}
+
 interface ResultInfo {
   title: string;
   bodyString?: string;
@@ -326,9 +338,9 @@ export function run(processArgv: readonly string[]): void {
       buildSoyOptions,
       async (argv) => {
         const config = loadConfig(argv);
-        assertString(config.soyJarPath);
-        assertNonNullable(config.soyFileRoots);
-        assertNonNullable(config.soyOptions);
+        assertStringWithConfig(config, "soyJarPath");
+        assertNonNullableWithConfig(config, "soyFileRoots");
+        assertNonNullableWithConfig(config, "soyOptions");
         const tasks = listr(
           [
             {
@@ -369,7 +381,7 @@ export function run(processArgv: readonly string[]): void {
       buildSoyOptions,
       async (argv) => {
         const config = loadConfig(argv);
-        assertNonNullable(config.soyOptions);
+        assertNonNullable(config, "soyOptions");
         const tasks = listr(
           [
             {
@@ -392,7 +404,9 @@ export function run(processArgv: readonly string[]): void {
           [
             {
               title: `Clean up deps.js: ${config.depsJs}`,
-              task: wrap(() => cleanDeps(assertString(config.depsJs))),
+              task: wrap(() =>
+                cleanDeps(assertStringWithConfig(config, "depsJs"))
+              ),
             },
           ],
           argv
