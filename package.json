@@ -76,7 +76,7 @@
     "@types/rimraf": "^3.0.0",
     "@types/semver": "^7.3.6",
     "@types/serve-static": "^1.13.9",
-    "@types/split2": "^2.1.6",
+    "@types/split2": "^3.2.1",
     "@types/workerpool": "^6.0.0",
     "@types/yargs": "^15.0.13",
     "codecov": "^3.8.2",
